@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qcbba · 方块航站</title>
+<meta name="description" content="低延迟·长续存·纯公益 Minecraft 航站">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--bg:#f5f7fa;--card:#fff;--text:#222;--primary:#00c6ff;--radius:14px;--shadow:0 8px 32px rgba(0,0,0,.08);--transition:all .3s ease}
+[data-theme="dark"]{--bg:#0f1116;--card:#1a1d24;--text:#e6e6e6;--shadow:0 8px 32px rgba(0,0,0,.25)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);transition:var(--transition)}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font:inherit;border:none;background:none}
+
+/* 三杠菜单 */
+.navbar{position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);background:rgba(255,255,255,.7);border-bottom:1px solid rgba(0,0,0,.08)}
+.nav-container{max-width:1000px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem}
+.logo{display:flex;align-items:center;gap:.5rem;font-weight:700;color:var(--primary)}
+.menu-toggle{font-size:1.4rem;color:var(--text)}
+.side-menu{position:fixed;left:0;top:0;height:100vh;width:220px;background:var(--card);box-shadow:var(--shadow);transform:translateX(-100%);transition:transform .3s;z-index:200}
+.side-menu.active{transform:translateX(0)}
+.side-menu ul{list-style:none;padding:3rem 1.5rem}
+.side-menu li{margin-bottom:1.2rem}
+.side-menu a{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;transition:color .2s}
+.side-menu a.active{color:var(--primary);font-weight:600}
+.overlay{position:fixed;inset:0;background:#0003;opacity:0;visibility:hidden;transition:opacity .3s;z-index:150}
+.overlay.show{opacity:1;visibility:visible}
+
+/* 首页内容 */
+.hero{position:relative;height:60vh;display:grid;place-items:center;overflow:hidden;animation:fadeIn 1s}
+@keyframes fadeIn{from{opacity:0}}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,var(--primary),#0072ff);opacity:.15;filter:blur(40px);animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.05)}}
+.hero-content{text-align:center;z-index:2;animation:zoomIn 1s}
+@keyframes zoomIn{from{transform:scale(.9);opacity:0}}
+.hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800}
+.hero p{font-size:1.1rem;opacity:.8;margin-top:.5rem;animation:fadeInUp 1s .3s both}
+@keyframes fadeInUp{from{transform:translateY(20px);opacity:0}}
+
+.section{max-width:1000px;margin:4rem auto;padding:0 1.2rem;animation:fadeInUp 1s .5s both}
+.section-title{font-size:1.5rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:.5rem}
+.grid{display:grid;gap:1.2rem;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.card{background:var(--card);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow);transition:var(--transition)}
+.card:hover{transform:translateY(-4px)}
+.status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--accent);margin-right:.4rem;animation:blink 1.5s infinite}
+@keyframes blink{50%{opacity:.3}}
+.input-group{display:flex;gap:.6rem}
+.input{flex:1;padding:.7rem 1rem;border-radius:var(--radius);border:1px solid rgba(0,0,0,.15);background:var(--bg);color:var(--text);transition:var(--transition)}
+.input:focus{border-color:var(--primary);outline:none}
+.btn{padding:.7rem 1.2rem;border-radius:var(--radius);background:var(--primary);color:#fff;font-weight:600;box-shadow:var(--shadow);transition:var(--transition)}
+.btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
+.btn-small{padding:.4rem .8rem;font-size:.85rem;border-radius:calc(var(--radius)/2);background:var(--primary);color:#fff}
+.node-foot{margin-top:1rem;font-size:.75rem;opacity:.7;display:flex;align-items:center;justify-content:space-between}
+#playerGrid{margin-top:1rem}
+.player-card{display:flex;align-items:center;gap:.6rem}
+.player-head{width:28px;height:28px;border-radius:50%}
+.footer{margin-top:6rem;padding:2.5rem 1.2rem;text-align:center;font-size:.9rem;opacity:.6;animation:fadeIn 1s 1s both}
+
+/* 粒子时钟 & 日光模式 */
+#particleClock{position:absolute;top:1rem;right:1rem;width:120px;height:120px;z-index:10}
+.sun-mode{position:fixed;bottom:2rem;right:2rem;width:50px;height:50px;border-radius:50%;background:#ffd700;box-shadow:0 0 20px #ffd700;cursor:pointer;animation:rotate 10s linear infinite}
+@keyframes rotate{to{transform:rotate(360deg)}}
+.sun-mode:hover{transform:scale(1.1)}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--card);padding:.8rem 1.4rem;border-radius:var(--radius);box-shadow:var(--shadow);z-index:200;display:none;animation:fadeInUp .3s}
+</style>
+</head>
+<body data-theme="auto">
+
+<nav class="navbar">
+  <div class="nav-container">
+    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+    <div class="logo"><i class="fas fa-rocket"></i> <span>Qcbba</span></div>
+    <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+  </div>
+</nav>
+
+<aside class="side-menu" id="sideMenu">
+  <ul>
+    <li><a href="#home" class="menu-link active"><i class="fas fa-home"></i> 首页</a></li>
+    <li><a href="#server" class="menu-link"><i class="fas fa-server"></i> 服务器介绍</a></li>
+    <li><a href="http://cn-hk1.qwq0v0.fun:46923/about.html" class="menu-link"><i class="fas fa-info-circle"></i> 关于</a></li>
+    <li><a href="http://cn-hk1.qwq0v0.fun:46923/user.html" class="menu-link"><i class="fas fa-users"></i> 贡献者</a></li>
+  </ul>
+</aside>
+<div class="overlay" id="overlay"></div>
+
+<section class="hero" id="home">
+  <canvas id="particleClock"></canvas>
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <h1>Qcbba 方块航站</h1>
+    <p>低延迟 · 长续存 · 纯公益</p>
+  </div>
+</section>
+
+<div class="section" id="server">
+  <h2 class="section-title"><i class="fas fa-server"></i> 节点状态</h2>
+  <div class="grid" id="serverGrid"></div>
+
+  <h2 class="section-title"><i class="fas fa-user-friends"></i> 在线乘员</h2>
+  <div class="input-group">
+    <input id="playerSearch" class="input" placeholder="搜索玩家">
+    <button class="btn" id="refreshPlayers">刷新</button>
+  </div>
+  <div class="grid" id="playerGrid"></div>
+
+  <h2 class="section-title"><i class="fas fa-rocket"></i> 快速登机</h2>
+  <div class="card">
+    <p>① 启动 <strong>Minecraft Java 版 1.21.8</strong></p>
+    <p>② 添加服务器地址 <code>im.rainplay.cn:12159</code></p>
+    <p>③ 点击加入，即可启程</p>
+  </div>
+</div>
+
+<footer class="footer">
+  <p>Qcbba 自 2025 年早春运行 · 公益不商</p>
+</footer>
+
+<div class="sun-mode" id="sunMode" title="日光模式"><i class="fas fa-sun"></i></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====  三杠菜单  ===== */
+const menuToggle = document.getElementById('menuToggle');
+const sideMenu   = document.getElementById('sideMenu');
+const overlay    = document.getElementById('overlay');
+
+function toggleMenu(open){
+  sideMenu.classList.toggle('active',open);
+  overlay.classList.toggle('show',open);
+}
+menuToggle.addEventListener('click',()=>toggleMenu());
+overlay.addEventListener('click',()=>toggleMenu(false));
+
+/* 首次高亮首页 */
+document.querySelector('.menu-link[href="#home"]').classList.add('active');
+
+/* =====  主题 / 时钟 / 搜索 / Toast  ===== */
+const body=document.body;
+function setTheme(t){
+  body.setAttribute('data-theme',t);
+  localStorage.setItem('theme',t);
+  document.getElementById('themeToggle').innerHTML=t==='dark'?'<i class="fas fa-sun"></i>':'<i class="fas fa-moon"></i>';
+}
+document.getElementById('themeToggle').addEventListener('click',()=>setTheme(body.getAttribute('data-theme')==='dark'?'light':'dark'));
+document.getElementById('sunMode').addEventListener('click',()=>setTheme('light'));
+const saved=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+setTheme(saved);
+
+/* 粒子时钟 */
+const canvas=document.getElementById('particleClock'),ctx=canvas.getContext('2d');
+let particles=[],ani;
+function resize(){const s=Math.min(innerWidth*.15,120);canvas.width=canvas.height=s;}
+function particle(){return{x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,size:Math.random()*2+1,opacity:Math.random()*.5+.5};}
+function drawClock(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const now=new Date(),h=now.getHours().toString().padStart(2,'0'),m=now.getMinutes().toString().padStart(2,'0'),s=now.getSeconds().toString().padStart(2,'0');
+  particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fillStyle=`rgba(0,198,255,${p.opacity})`;ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;});
+  ctx.font=`${canvas.width*.15}px Inter`;ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--primary');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(`${h}:${m}`,canvas.width/2,canvas.height/2-canvas.width*.1);ctx.font=`${canvas.width*.1}px Inter`;ctx.fillText(s,canvas.width/2,canvas.height/2+canvas.width*.1);
+}
+function animate(){drawClock();ani=requestAnimationFrame(animate);}
+resize();particles=Array.from({length:30},particle);animate();addEventListener('resize',()=>{resize();particles=Array.from({length:30},particle);});
+
+/* 搜索 & Toast */
+document.getElementById('playerSearch').addEventListener('input',e=>{
+  const v=e.target.value.toLowerCase();
+  document.querySelectorAll('.player-card').forEach(c=>c.style.display=c.querySelector('.player-name').textContent.toLowerCase().includes(v)?'':'none');
+});
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.getElementById('toast').appendChild(t);setTimeout(()=>t.remove(),2000);}
+document.addEventListener('click',e=>{if(e.target.closest('.btn-small')){navigator.clipboard.writeText('im.rainplay.cn:12159').then(()=>toast('地址已复制'));}});
+
+/* 日志 */
+console.log('[Index] 首页已加载');
+console.log('[Index] 当前主题:',saved);
+</script>
+<script src="detector.js"></script>
+<script src="online-detector.js"></script>
+</body>
+</html>

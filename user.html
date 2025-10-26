@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>贡献者 - Qcbba 方块航站</title>
+<meta name="description" content="Qcbba 贡献者名录——致敬每一位让航站更好的人">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--bg:#f5f7fa;--card:#fff;--text:#222;--primary:#00c6ff;--radius:14px;--shadow:0 8px 32px rgba(0,0,0,.08);--transition:all .3s ease}
+[data-theme="dark"]{--bg:#0f1116;--card:#1a1d24;--text:#e6e6e6;--shadow:0 8px 32px rgba(0,0,0,.25)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);transition:var(--transition)}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font:inherit;border:none;background:none}
+
+/* 导航栏三杠菜单 */
+.navbar{position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);background:rgba(255,255,255,.7);border-bottom:1px solid rgba(0,0,0,.08)}
+.nav-container{max-width:1000px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem}
+.logo{display:flex;align-items:center;gap:.5rem;font-weight:700;color:var(--primary)}
+.menu-toggle{font-size:1.4rem;color:var(--text)}
+.side-menu{position:fixed;left:0;top:0;height:100vh;width:220px;background:var(--card);box-shadow:var(--shadow);transform:translateX(-100%);transition:transform .3s;z-index:200}
+.side-menu.active{transform:translateX(0)}
+.side-menu ul{list-style:none;padding:3rem 1.5rem}
+.side-menu li{margin-bottom:1.2rem}
+.side-menu a{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;transition:color .2s}
+.side-menu a.active{color:var(--primary);font-weight:600}
+.overlay{position:fixed;inset:0;background:#0003;opacity:0;visibility:hidden;transition:opacity .3s;z-index:150}
+.overlay.show{opacity:1;visibility:visible}
+
+/* 贡献者列表 */
+.section{max-width:1000px;margin:4rem auto;padding:0 1.2rem;animation:fadeInUp 1s .5s both}
+@keyframes fadeInUp{from{transform:translateY(20px);opacity:0}}
+.section-title{font-size:1.8rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:.5rem}
+.contributor-card{display:flex;gap:1.2rem;align-items:center;background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);transition:var(--transition)}
+.contributor-card:hover{transform:translateY(-4px)}
+.avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#0072ff);display:grid;place-items:center;font-size:1.5rem;color:#fff}
+.info{flex:1}
+.info h3{font-size:1.1rem;margin-bottom:.3rem}
+.info p{opacity:.8;font-size:.9rem}
+.contact{display:flex;gap:.8rem;font-size:1.2rem;color:var(--primary)}
+.contact a:hover{transform:scale(1.1)}
+
+.ref-section{margin-top:3rem}
+.ref-card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow)}
+.ref-card h3{margin-bottom:.6rem;color:var(--primary)}
+.footer{margin-top:6rem;padding:2.5rem 1.2rem;text-align:center;font-size:.9rem;opacity:.6}
+
+/* 主题 & 日光模式 */
+.theme-toggle{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--card);box-shadow:var(--shadow);color:var(--primary);transition:var(--transition)}
+.theme-toggle:hover{transform:scale(1.1) rotate(15deg)}
+.sun-mode{position:fixed;bottom:2rem;right:2rem;width:50px;height:50px;border-radius:50%;background:#ffd700;box-shadow:0 0 20px #ffd700;cursor:pointer;animation:rotate 10s linear infinite}
+@keyframes rotate{to{transform:rotate(360deg)}}
+.sun-mode:hover{transform:scale(1.1)}
+</style>
+</head>
+<body data-theme="auto">
+
+<nav class="navbar">
+  <div class="nav-container">
+    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+    <div class="logo"><i class="fas fa-rocket"></i> <span>Qcbba</span></div>
+    <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+  </div>
+</nav>
+
+<aside class="side-menu" id="sideMenu">
+  <ul>
+    <li><a href="index.html" class="menu-link"><i class="fas fa-home"></i> 首页</a></li>
+    <li><a href="#" class="menu-link"><i class="fas fa-server"></i> 服务器介绍</a></li>
+    <li><a href="about.html" class="menu-link"><i class="fas fa-info-circle"></i> 关于</a></li>
+    <li><a href="user.html" class="menu-link active"><i class="fas fa-users"></i> 贡献者</a></li>
+  </ul>
+</aside>
+<div class="overlay" id="overlay"></div>
+
+<main class="section">
+  <h2 class="section-title"><i class="fas fa-users"></i> 贡献者</h2>
+
+  <div class="contributor-card">
+    <div class="avatar"><i class="fas fa-user-astronaut"></i></div>
+    <div class="info">
+      <h3>qysn</h3>
+      <p>创始人 / 主程序 / 生电架构师</p>
+      <div class="contact">
+        <a href="162238405" target="_blank" title="QQ"><i class="fab fa-qq"></i></a>
+        <a href="162238405@qq.com" title="邮箱"><i class="fas fa-envelope"></i></a>
+        <a href="https://github.com/Starlight-apk" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+      </div>
+    </div>
+  </div>
+
+ <div class="contributor-card">
+    <div class="avatar"><i class="fas fa-user-astronaut"></i></div>
+    <div class="info">
+      <h3>wangxianming</h3>
+      <p>提供了重要API的人</p>
+    </div>
+  </div>
+
+  <div class="ref-section">
+    <h2 class="section-title"><i class="fas fa-link"></i> 参考来源</h2>
+    <div class="ref-card">
+      <h3>2377039306 的独立网站</h3>
+      <p>本网站整体交互与视觉风格参考了 <a href="https://2377039306.github.io" target="_blank">2377039306</a> 的独立作品，特此致谢！</p>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <p>Qcbba 自 2025 年早春运行 · 公益不商</p>
+</footer>
+
+<div class="sun-mode" id="sunMode" title="日光模式"><i class="fas fa-sun"></i></div>
+
+<script>
+/* =====  三杠菜单  ===== */
+const menuToggle = document.getElementById('menuToggle');
+const sideMenu   = document.getElementById('sideMenu');
+const overlay    = document.getElementById('overlay');
+
+function toggleMenu(open){
+  sideMenu.classList.toggle('active',open);
+  overlay.classList.toggle('show',open);
+}
+menuToggle.addEventListener('click',()=>toggleMenu());
+overlay.addEventListener('click',()=>toggleMenu(false));
+
+/* =====  主题切换  ===== */
+const body=document.body;
+function setTheme(t){
+  body.setAttribute('data-theme',t);
+  localStorage.setItem('theme',t);
+  document.getElementById('themeToggle').innerHTML=t==='dark'?'<i class="fas fa-sun"></i>':'<i class="fas fa-moon"></i>';
+}
+document.getElementById('themeToggle').addEventListener('click',()=>setTheme(body.getAttribute('data-theme')==='dark'?'light':'dark'));
+document.getElementById('sunMode').addEventListener('click',()=>setTheme('light'));
+const saved=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+setTheme(saved);
+
+console.log('[User] 贡献者页已加载');
+</script>
+</body>
+</html>
