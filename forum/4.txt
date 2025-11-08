@@ -1,0 +1,8 @@
+name = 我的帖子似乎消失了
+user = 劳于读书，逸于作文
+uid = 100000
+type = text
+time = 2025-11-02 06:32:18
+likes = 1
+---content---
+.
