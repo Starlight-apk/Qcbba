@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 - 页面未找到</title>
+<meta name="description" content="404 页面 - Qcbba 方块航站">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg:#f5f7fa;
+  --card:#fff;
+  --text:#222;
+  --primary:#00c6ff;
+  --radius:14px;
+  --shadow:0 8px 32px rgba(0,0,0,.08);
+  --transition:all .3s ease
+}
+[data-theme="dark"]{
+  --bg:#0f1116;
+  --card:#1a1d24;
+  --text:#e6e6e6;
+  --shadow:0 8px 32px rgba(0,0,0,.25)
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  transition:var(--transition);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  padding:1rem;
+  text-align:center
+}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font:inherit;border:none;background:none}
+
+/* 404 内容 */
+.error-container{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:2.5rem 2rem;
+  box-shadow:var(--shadow);
+  max-width:400px;
+  width:100%;
+  animation:fadeInUp 1s ease both
+}
+@keyframes fadeInUp{
+  from{transform:translateY(20px);opacity:0}
+}
+.error-icon{
+  font-size:4rem;
+  color:var(--primary);
+  margin-bottom:1rem
+}
+.error-title{
+  font-size:2rem;
+  font-weight:800;
+  margin-bottom:.5rem
+}
+.error-desc{
+  font-size:1rem;
+  margin-bottom:2rem;
+  opacity:.8
+}
+.back-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  background:var(--primary);
+  color:#fff;
+  padding:.75rem 1.5rem;
+  border-radius:var(--radius);
+  font-weight:600;
+  transition:var(--transition)
+}
+.back-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(0,198,255,.4)
+}
+
+/* 电脑端适配 */
+@media (min-width:600px){
+  .error-container{
+    max-width:500px;
+    padding:3rem
+  }
+  .error-icon{font-size:5rem}
+  .error-title{font-size:2.5rem}
+  .error-desc{font-size:1.1rem}
+}
+</style>
+</head>
+<body data-theme="auto">
+
+<div class="error-container">
+  <div class="error-icon"><i class="fas fa-rocket"></i></div>
+  <h1 class="error-title">404</h1>
+  <p class="error-desc">抱歉，您访问的页面已飞往未知星系。</p>
+  <a href="index.html" class="back-btn">
+    <i class="fas fa-arrow-left"></i> 返回首页
+  </a>
+</div>
+
+<script>
+/* 自动主题 */
+const body=document.body;
+function setTheme(t){
+  body.setAttribute('data-theme',t);
+  localStorage.setItem('theme',t);
+}
+const saved=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+setTheme(saved);
+</script>
+</body>
+</html>
