@@ -1,0 +1,7 @@
+post_id = 1
+comment_id = 1
+author = qysn
+uid = 10086
+time = 2025-11-01 00:04:14
+---content---
+自己回去搜
