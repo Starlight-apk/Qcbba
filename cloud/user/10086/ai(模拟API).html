@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI助手 - 流式输出版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .chat-container {
+            height: calc(100vh - 160px);
+        }
+        .message-bubble {
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user-bubble {
+            border-radius: 18px 18px 4px 18px;
+        }
+        .ai-bubble {
+            border-radius: 18px 18px 18px 4px;
+        }
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            display: inline-block;
+            border-radius: 50%;
+            background-color: #6b7280;
+            animation: bounce 1.5s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+        .error-message {
+            color: #ef4444;
+            background-color: #fee2e2;
+        }
+        .streaming-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: #4b5563;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-md mx-auto bg-white shadow-lg h-screen flex flex-col">
+        <!-- 顶部导航栏 -->
+        <div class="bg-blue-500 text-white p-4 flex items-center">
+            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
+                <i class="fas fa-robot text-blue-500 text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg">AI助手</h1>
+                <p class="text-xs opacity-80">DeepSeek-V3 流式输出</p>
+            </div>
+            <div class="ml-auto flex space-x-3">
+                <button class="text-white" id="clearChat"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        </div>
+
+        <!-- 聊天区域 -->
+        <div class="chat-container overflow-y-auto p-4 flex-grow" id="chatArea">
+            <div class="flex flex-col space-y-3">
+                <!-- AI欢迎消息 -->
+                <div class="flex">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center mr-2">
+                        <i class="fas fa-robot text-blue-500"></i>
+                    </div>
+                    <div class="bg-gray-100 p-3 message-bubble ai-bubble">
+                        <p>你好！我是支持流式输出的DeepSeek-V3 AI助手，可以实时逐字显示回复。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="p-4 border-t border-gray-200">
+            <div class="flex items-center">
+                <input 
+                    type="text" 
+                    placeholder="输入消息..." 
+                    class="flex-grow border border-gray-300 rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    id="messageInput"
+                    autocomplete="off"
+                >
+                <button class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center ml-2 text-white disabled:opacity-50" 
+                        id="sendButton"
+                        disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <p class="text-xs text-gray-500 mt-2 text-center">流式输出模式 | DeepSeek-V3</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const chatArea = document.getElementById('chatArea');
+            const clearChatBtn = document.getElementById('clearChat');
+            
+            // 硅基流动API配置
+            const API_CONFIG = {
+                API_KEY: 'sk-imiwwgudqxvfnmqahjctyhdheaukjwyszxnxzdlxsgfvvouv',
+                API_ENDPOINT: 'https://api.siliconflow.cn/v1/chat/completions',
+                MODEL: 'deepseek-ai/DeepSeek-V3',
+                MAX_TOKENS: 2000,
+                TEMPERATURE: 0.7
+            };
+            
+            // 对话历史管理
+            let conversationHistory = [
+                {
+                    role: "system",
+                    content: "你是一个有帮助的AI助手，基于DeepSeek-V3模型。回答要简洁专业。"
+                }
+            ];
+            
+            // 输入框监听
+            messageInput.addEventListener('input', function() {
+                sendButton.disabled = this.value.trim() === '';
+            });
+            
+            // 发送消息函数
+            async function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message === '') return;
+                
+                // 禁用输入和按钮
+                messageInput.disabled = true;
+                sendButton.disabled = true;
+                
+                // 添加用户消息
+                addUserMessage(message);
+                conversationHistory.push({ role: "user", content: message });
+                messageInput.value = '';
+                
+                // 创建AI消息容器（用于流式输出）
+                const aiMessageDiv = createAIResponseContainer();
+                
+                try {
+                    // 调用流式API
+                    await callStreamingAPI(aiMessageDiv);
+                } catch (error) {
+                    console.error("API调用失败:", error);
+                    updateAIResponse(aiMessageDiv, `请求失败: ${error.message}`, true);
+                } finally {
+                    // 恢复UI状态
+                    messageInput.disabled = false;
+                    messageInput.focus();
+                }
+            }
+            
+            // 创建AI响应容器
+            function createAIResponseContainer() {
+                const container = document.createElement('div');
+                container.className = 'flex';
+                container.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center mr-2">
+                        <i class="fas fa-robot text-blue-500"></i>
+                    </div>
+                    <div class="bg-gray-100 p-3 message-bubble ai-bubble">
+                        <div id="streamingContent"></div>
+                        <div class="streaming-cursor"></div>
+                    </div>
+                `;
+                chatArea.querySelector('.flex-col').appendChild(container);
+                scrollToBottom();
+                return container;
+            }
+            
+            // 更新AI响应内容
+            function updateAIResponse(container, text, isError = false) {
+                const contentDiv = container.querySelector('#streamingContent');
+                const cursorDiv = container.querySelector('.streaming-cursor');
+                
+                if (isError) {
+                    container.querySelector('.bg-gray-100').classList.add('error-message');
+                    cursorDiv.style.display = 'none';
+                }
+                
+                // 处理换行和加粗格式
+                let formattedText = escapeHtml(text)
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // 加粗处理
+                    .replace(/\n/g, '<br>');  // 换行处理
+                
+                contentDiv.innerHTML = formattedText;
+                
+                // 如果是最终响应，移除光标并添加到对话历史
+                if (!isError && !cursorDiv.style.display === 'none') {
+                    cursorDiv.style.display = 'none';
+                    conversationHistory.push({
+                        role: "assistant",
+                        content: text
+                    });
+                }
+                
+                scrollToBottom();
+            }
+            
+            // 调用流式API
+            async function callStreamingAPI(container) {
+                try {
+                    const response = await fetch(API_CONFIG.API_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${API_CONFIG.API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            model: API_CONFIG.MODEL,
+                            messages: conversationHistory,
+                            temperature: API_CONFIG.TEMPERATURE,
+                            max_tokens: API_CONFIG.MAX_TOKENS,
+                            stream: true  // 启用流式输出
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(
+                            errorData.error?.message || 
+                            `HTTP错误: ${response.status}`
+                        );
+                    }
+                    
+                    // 处理流式数据
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let fullResponse = '';
+                    
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        
+                        const chunk = decoder.decode(value);
+                        const lines = chunk.split('\n').filter(line => line.trim() !== '');
+                        
+                        for (const line of lines) {
+                            if (line.startsWith('data:') && !line.includes('[DONE]')) {
+                                try {
+                                    const data = JSON.parse(line.substring(5));
+                                    if (data.choices && data.choices[0].delta.content) {
+                                        fullResponse += data.choices[0].delta.content;
+                                        updateAIResponse(container, fullResponse);
+                                    }
+                                } catch (e) {
+                                    console.warn('解析流数据出错:', e);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 流结束后移除光标
+                    container.querySelector('.streaming-cursor').style.display = 'none';
+                    
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            // 添加用户消息
+            function addUserMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'flex justify-end';
+                messageDiv.innerHTML = `
+                    <div class="bg-blue-500 text-white p-3 message-bubble user-bubble">
+                        <p>${escapeHtml(text)}</p>
+                    </div>
+                `;
+                chatArea.querySelector('.flex-col').appendChild(messageDiv);
+                scrollToBottom();
+            }
+            
+            // 清空聊天
+            clearChatBtn.addEventListener('click', function() {
+                if (confirm('确定要清空对话历史吗？')) {
+                    chatArea.querySelector('.flex-col').innerHTML = `
+                        <div class="flex">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center mr-2">
+                                <i class="fas fa-robot text-blue-500"></i>
+                            </div>
+                            <div class="bg-gray-100 p-3 message-bubble ai-bubble">
+                                <p>对话已重置，请问有什么可以帮助您的？</p>
+                            </div>
+                        </div>
+                    `;
+                    conversationHistory = [
+                        {
+                            role: "system",
+                            content: "你是一个有帮助的AI助手，基于DeepSeek-V3模型。回答要简洁专业。"
+                        }
+                    ];
+                }
+            });
+            
+            // 滚动到底部
+            function scrollToBottom() {
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }
+            
+            // HTML转义防止XSS
+            function escapeHtml(unsafe) {
+                // 先处理Markdown加粗语法，临时替换星号
+                const withTemporaryMarkers = unsafe.replace(/\*\*(.*?)\*\*/g, "°°°$1°°°");
+                
+                // 转义HTML
+                const escaped = withTemporaryMarkers
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+                
+                // 恢复Markdown加粗语法
+                return escaped.replace(/°°°(.*?)°°°/g, "**$1**");
+            }
+            
+            // 事件监听
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
