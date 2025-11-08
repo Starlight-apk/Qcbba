@@ -1,0 +1,351 @@
+/* animations.css - Qcbba 方块航站动画库 */
+
+/* 页面加载动画 */
+@keyframes pageFadeIn {
+  0% { 
+    opacity: 0; 
+  }
+  100% { 
+    opacity: 1; 
+  }
+}
+
+/* 元素渐入动画 */
+@keyframes fadeInUp {
+  0% { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes fadeInDown {
+  0% { 
+    opacity: 0; 
+    transform: translateY(-20px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes fadeInLeft {
+  0% { 
+    opacity: 0; 
+    transform: translateX(-20px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateX(0); 
+  }
+}
+
+@keyframes fadeInRight {
+  0% { 
+    opacity: 0; 
+    transform: translateX(20px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateX(0); 
+  }
+}
+
+@keyframes zoomIn {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.95); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+@keyframes slideUp {
+  0% { 
+    opacity: 0; 
+    transform: translateY(15px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* 脉冲动画 */
+@keyframes pulse {
+  0% { 
+    opacity: 0.1; 
+  }
+  50% { 
+    opacity: 0.15; 
+  }
+  100% { 
+    opacity: 0.1; 
+  }
+}
+
+/* 旋转动画 */
+@keyframes rotate {
+  0% { 
+    transform: rotate(0deg); 
+  }
+  100% { 
+    transform: rotate(360deg); 
+  }
+}
+
+/* 加载动画 */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 弹窗动画 */
+@keyframes popModal {
+  0% { 
+    transform: translateX(-50%) scale(0.9); 
+    opacity: 0; 
+  }
+  100% { 
+    transform: translateX(-50%) scale(1); 
+    opacity: 1; 
+  }
+}
+
+/* 页面加载动画类 */
+.page-load {
+  opacity: 0;
+  animation: pageFadeIn 0.6s ease-out forwards;
+}
+
+/* 元素渐入动画类 */
+.fade-in-up {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.fade-in-down {
+  opacity: 0;
+  animation: fadeInDown 0.6s ease forwards;
+}
+
+.fade-in-left {
+  opacity: 0;
+  animation: fadeInLeft 0.6s ease forwards;
+}
+
+.fade-in-right {
+  opacity: 0;
+  animation: fadeInRight 0.6s ease forwards;
+}
+
+.zoom-in {
+  opacity: 0;
+  animation: zoomIn 0.6s ease forwards;
+}
+
+.slide-up {
+  opacity: 0;
+  animation: slideUp 0.6s ease forwards;
+}
+
+/* 悬停动画类 */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+}
+
+.btn-hover {
+  transition: all 0.3s ease;
+}
+
+.btn-hover:hover {
+  transform: translateY(-2px);
+}
+
+/* 点击动画类 */
+.btn-click {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.btn-click:active {
+  transform: scale(0.98);
+}
+
+/* 弹窗动画类 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: var(--card, #fff);
+  border-radius: var(--radius, 14px);
+  padding: 2rem;
+  box-shadow: var(--shadow, 0 8px 32px rgba(0,0,0,.08));
+  max-width: 500px;
+  width: 90%;
+  transform: scale(0.9);
+  opacity: 0;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.modal-overlay.active .modal-content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg, #f5f7fa);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  color: inherit;
+}
+
+.modal-close:hover {
+  transform: rotate(90deg);
+  background: var(--primary, #00c6ff);
+  color: white;
+}
+
+/* 导航栏动画 */
+.navbar-slide {
+  transform: translateY(-100%);
+  animation: slideDown 0.5s ease 0.2s forwards;
+}
+
+@keyframes slideDown {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(0); }
+}
+
+/* 英雄区域动画 */
+.hero-pulse {
+  animation: pulse 6s ease-in-out infinite;
+}
+
+.hero-zoom {
+  opacity: 0;
+  animation: zoomIn 0.8s ease 0.3s forwards;
+}
+
+/* 加载动画 */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--bg, #f5f7fa);
+  border-top: 3px solid var(--primary, #00c6ff);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+/* 吐司通知动画 */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card, #fff);
+  padding: 0.8rem 1.4rem;
+  border-radius: var(--radius, 14px);
+  box-shadow: var(--shadow, 0 8px 32px rgba(0,0,0,.08));
+  z-index: 250;
+  opacity: 0;
+  animation: popModal 0.3s ease forwards;
+}
+
+/* 日光模式动画 */
+.sun-rotate {
+  animation: rotate 15s linear infinite;
+}
+
+.sun-rotate:hover {
+  transform: scale(1.1);
+}
+
+/* 动画延迟工具类 */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+.delay-700 { animation-delay: 0.7s; }
+.delay-800 { animation-delay: 0.8s; }
+.delay-900 { animation-delay: 0.9s; }
+.delay-1000 { animation-delay: 1s; }
+
+/* 动画持续时间工具类 */
+.duration-300 { animation-duration: 0.3s; }
+.duration-500 { animation-duration: 0.5s; }
+.duration-700 { animation-duration: 0.7s; }
+.duration-1000 { animation-duration: 1s; }
+
+/* 确保动画不影响布局 */
+.fade-in-up,
+.fade-in-down,
+.fade-in-left,
+.fade-in-right,
+.zoom-in,
+.slide-up {
+  position: relative;
+  z-index: 1;
+}
+
+/* 响应式动画 */
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+}
+
+/* 减少动画偏好设置 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
