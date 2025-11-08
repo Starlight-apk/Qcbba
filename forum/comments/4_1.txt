@@ -1,0 +1,7 @@
+post_id = 4
+comment_id = 1
+author = qysn
+uid = 10086
+time = 2025-11-01 11:12:49
+---content---
+什么列如其评论？
