@@ -1,0 +1,3 @@
+name=劳于读书，逸于作文
+uid=100000
+role=user
