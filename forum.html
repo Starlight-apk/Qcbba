@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qcbba · 方块航站 - 论坛</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="http://123.60.174.101:48053/animations.css">
+
+<!-- =================  新增点赞爱心变色样式（开始） ================= -->
+<style>
+/* 点赞后爱心变红 + 过渡 */
+.post-action {
+    transition: color 0.3s ease;
+}
+.post-action.liked {
+    color: #ff4757 !important;
+    opacity: 1 !important;
+}
+</style>
+<!-- =================  新增点赞爱心变色样式（结束） ================= -->
+
+<style>
+/* 原样式不变，仅折叠展示，方便复制 */
+:root {
+    --bg: #f5f7fa;
+    --card: #fff;
+    --text: #222;
+    --primary: #00c6ff;
+    --radius: 14px;
+    --shadow: 0 8px 32px rgba(0,0,0,.08);
+    --transition: all .3s ease;
+}
+[data-theme="dark"] {
+    --bg: #0f1116;
+    --card: #1a1d24;
+    --text: #e6e6e6;
+    --shadow: 0 8px 32px rgba(0,0,0,.25);
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: var(--transition);
+    line-height: 1.6;
+}
+a {
+    color: inherit;
+    text-decoration: none;
+}
+button {
+    cursor: pointer;
+    font: inherit;
+    border: none;
+    background: none;
+}
+/* 导航栏 */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,.7);
+    border-bottom: 1px solid rgba(0,0,0,.08);
+}
+.nav-container {
+    max-width: 1000px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.2rem;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+#userRom {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+}
+#loginBtn {
+    display: inline-flex;
+}
+#userInfo {
+    display: none;
+    align-items: center;
+    gap: .4rem;
+    color: var(--primary);
+    font-weight: 600;
+}
+#logoutBtn {
+    display: none;
+    margin-left: .4rem;
+    padding: .4rem .6rem;
+    border-radius: var(--radius);
+    background: var(--primary);
+    color: #fff;
+    border: none;
+}
+.menu-toggle {
+    font-size: 1.4rem;
+    color: var(--text);
+}
+.theme-toggle {
+    font-size: 1.2rem;
+    color: var(--text);
+}
+/* 侧边菜单 */
+.side-menu {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 220px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    transform: translateX(-100%);
+    transition: transform .3s;
+    z-index: 200;
+}
+.side-menu.active {
+    transform: translateX(0);
+}
+.side-menu ul {
+    list-style: none;
+    padding: 3rem 1.5rem;
+}
+.side-menu li {
+    margin-bottom: 1.2rem;
+}
+.side-menu a {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .4rem 0;
+    transition: color .2s;
+}
+.side-menu a.active {
+    color: var(--primary);
+    font-weight: 600;
+}
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: #0003;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .3s;
+    z-index: 150;
+}
+.overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+/* 英雄区域 */
+.hero {
+    position: relative;
+    height: 30vh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--primary), #0072ff);
+    opacity: .15;
+    filter: blur(40px);
+}
+.hero-content {
+    text-align: center;
+    z-index: 2;
+}
+.hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 800;
+}
+.hero p {
+    font-size: 1.1rem;
+    opacity: .8;
+    margin-top: .5rem;
+}
+/* 主要内容区域 */
+.section {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1.2rem;
+}
+.section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+.card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.4rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+.card:hover {
+    transform: translateY(-4px);
+}
+.footer {
+    margin-top: 6rem;
+    padding: 2.5rem 1.2rem;
+    text-align: center;
+    font-size: .9rem;
+    opacity: .6;
+}
+/* 粒子时钟 */
+#particleClock {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 120px;
+    height: 120px;
+    z-index: 10;
+}
+.sun-mode {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #ffd700;
+    box-shadow: 0 0 20px #ffd700;
+    cursor: pointer;
+    animation: rotate 10s linear infinite;
+}
+@keyframes rotate {
+    to { transform: rotate(360deg); }
+}
+.sun-mode:hover {
+    transform: scale(1.1);
+}
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card);
+    padding: .8rem 1.4rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    z-index: 250;
+    display: none;
+}
+/* 论坛特定样式 */
+.forum-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.forum-tabs {
+    display: flex;
+    gap: .5rem;
+}
+.forum-tab {
+    padding: .5rem 1rem;
+    border-radius: var(--radius);
+    background: var(--card);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.forum-tab.active {
+    background: var(--primary);
+    color: #fff;
+}
+/* 帖子样式 */
+.post {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(0,0,0,.1);
+}
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .8rem;
+}
+.post-author {
+    font-weight: 600;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+.post-date {
+    font-size: .85rem;
+    opacity: .7;
+}
+.post-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: .8rem;
+    color: var(--text);
+    line-height: 1.4;
+}
+.post-content {
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+}
+.post-image {
+    max-width: 100%;
+    border-radius: var(--radius);
+    margin: .8rem 0;
+    cursor: pointer;
+    display: block;
+}
+.post-footer {
+    display: flex;
+    gap: 1.2rem;
+    margin-top: 1rem;
+    padding-top: .8rem;
+    border-top: 1px solid rgba(0,0,0,.1);
+}
+.post-action {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .9rem;
+    opacity: .7;
+    cursor: pointer;
+    transition: var(--transition);
+    padding: .4rem .8rem;
+    border-radius: var(--radius);
+}
+.post-action:hover {
+    opacity: 1;
+    background: var(--bg);
+}
+/* 点赞后爱心变红（已提前放到最上面，可覆盖此处） */
+.add-post-btn {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 1.5rem;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    z-index: 100;
+    transition: var(--transition);
+}
+.add-post-btn:hover {
+    transform: scale(1.1);
+}
+/* 模态框 */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    z-index: 300;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: none;
+}
+.modal.active {
+    display: block;
+    animation: popModal .3s;
+}
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(0,0,0,.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.modal-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+.modal-close {
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: .7;
+    padding: .5rem;
+    border-radius: var(--radius);
+}
+.modal-close:hover {
+    opacity: 1;
+    background: var(--bg);
+}
+.modal-body {
+    padding: 1.5rem;
+}
+/* 表单样式 */
+.form-group {
+    margin-bottom: 1.2rem;
+}
+.form-label {
+    display: block;
+    margin-bottom: .6rem;
+    font-weight: 600;
+    color: var(--text);
+}
+.form-input, .form-textarea {
+    width: 100%;
+    padding: .8rem 1rem;
+    border-radius: var(--radius);
+    border: 1px solid rgba(0,0,0,.1);
+    background: var(--bg);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    transition: var(--transition);
+}
+.form-input:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0,198,255,.1);
+}
+.form-textarea {
+    min-height: 150px;
+    line-height: 1.6;
+}
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .8rem;
+    margin-top: 1.5rem;
+}
+.btn {
+    padding: .8rem 1.5rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 1rem;
+    border: none;
+}
+.btn-primary {
+    background: var(--primary);
+    color: #fff;
+}
+.btn-primary:hover {
+    background: #0099cc;
+    transform: translateY(-2px);
+}
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+}
+.btn-outline:hover {
+    background: var(--primary);
+    color: #fff;
+}
+/* 图片上传 */
+.image-preview {
+    max-width: 100%;
+    border-radius: var(--radius);
+    margin-top: .8rem;
+    display: none;
+    border: 1px solid rgba(0,0,0,.1);
+}
+.image-upload {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    margin-top: .8rem;
+}
+.image-upload-btn {
+    padding: .6rem 1.2rem;
+    background: var(--bg);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: .9rem;
+    border: 1px solid rgba(0,0,0,.1);
+    transition: var(--transition);
+}
+.image-upload-btn:hover {
+    background: var(--card);
+}
+/* 帖子类型选择器 */
+.post-type-selector {
+    display: flex;
+    gap: .8rem;
+    margin-bottom: 1.5rem;
+}
+.post-type {
+    flex: 1;
+    text-align: center;
+    padding: 1.2rem;
+    border-radius: var(--radius);
+    background: var(--bg);
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid transparent;
+}
+.post-type:hover {
+    background: var(--card);
+}
+.post-type.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+/* 登录提示 */
+.login-prompt {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--card);
+    border-radius: var(--radius);
+    margin: 2rem 0;
+}
+.login-prompt h3 {
+    margin-bottom: 1rem;
+    color: var(--text);
+}
+.login-prompt p {
+    opacity: .8;
+    margin-bottom: 1.5rem;
+}
+/* 加载和错误状态 */
+.loading {
+    text-align: center;
+    padding: 3rem 2rem;
+    opacity: .7;
+}
+.error {
+    text-align: center;
+    padding: 2rem;
+    color: #ff4d4f;
+}
+/* 评论样式 */
+.comments-section {
+    margin-top: 1.5rem;
+    border-top: 1px solid rgba(0,0,0,.1);
+    padding-top: 1.2rem;
+}
+.comment {
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+}
+.comment:last-child {
+    border-bottom: none;
+}
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .5rem;
+}
+.comment-author {
+    font-weight: 600;
+    font-size: .9rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+.comment-date {
+    font-size: .8rem;
+    opacity: .7;
+}
+.comment-content {
+    font-size: .95rem;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.comment-form {
+    margin-top: 1.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid rgba(0,0,0,.1);
+}
+.comment-input {
+    width: 100%;
+    padding: .8rem 1rem;
+    border-radius: var(--radius);
+    border: 1px solid rgba(0,0,0,.1);
+    background: var(--bg);
+    font-size: .95rem;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+    color: var(--text);
+    line-height: 1.6;
+}
+.comment-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+.comment-submit {
+    margin-top: .8rem;
+    padding: .6rem 1.2rem;
+    background: var(--primary);
+    color: #fff;
+    border-radius: var(--radius);
+    font-size: .9rem;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.comment-submit:hover {
+    background: #0099cc;
+}
+.no-comments {
+    text-align: center;
+    padding: 2rem 1rem;
+    opacity: .6;
+    font-size: .9rem;
+    color: var(--text);
+}
+/* 帖子信息 */
+#commentPostInfo {
+    margin-bottom: 1.5rem;
+    padding: 1.2rem;
+    background: var(--bg);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--primary);
+}
+#commentPostTitle {
+    font-weight: 700;
+    margin-bottom: .3rem;
+    color: var(--text);
+}
+#commentPostAuthor {
+    font-size: .9rem;
+    opacity: .7;
+    color: var(--text);
+}
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .nav-container {
+        padding: 1rem;
+    }
+    .forum-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    .forum-tabs {
+        width: 100%;
+        overflow-x: auto;
+    }
+    .post-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .5rem;
+    }
+    .post-footer {
+        flex-wrap: wrap;
+        gap: .8rem;
+    }
+    .modal {
+        width: 95%;
+        margin: 1rem;
+    }
+    .add-post-btn {
+        bottom: 1rem;
+        left: 1rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+}
+</style>
+</head>
+<body data-theme="auto">
+<!-- 导航栏 -->
+<nav class="navbar fade-in-down">
+  <div class="nav-container">
+    <div id="userRom">
+      <a id="loginBtn" class="login-btn fade-in-right" href="http://123.60.174.101:48053/login.html">
+        <i class="fas fa-sign-in-alt"></i> 登录
+      </a>
+      <a id="userInfo" class="fade-in-right" href="http://123.60.174.101:48053/userhtml.php">
+        <i class="fas fa-user-circle"></i>
+        <span id="userName"></span>(#<span id="userId"></span>)
+      </a>
+      <button id="logoutBtn" class="fade-in-right" onclick="logout()" title="退出">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+    <div class="logo zoom-in">
+      <i class="fas fa-rocket"></i> 
+      <span>Qcbba</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:.8rem;">
+      <button class="theme-toggle fade-in-left" id="themeToggle">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="menu-toggle fade-in-left" id="menuToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- 侧边菜单 -->
+<aside class="side-menu slide-in-left" id="sideMenu">
+  <ul>
+    <li><a href="http://123.60.174.101:48053/forum.html" class="menu-link active"><i class="fas fa-comments"></i> 论坛</a></li>
+    <li><a href="index.html" class="menu-link"><i class="fas fa-home"></i> 首页</a></li>
+    <li><a href="index.html#server" class="menu-link"><i class="fas fa-server"></i> 服务器介绍</a></li>
+    <li><a href="http://123.60.174.101:48053/about.html" class="menu-link"><i class="fas fa-info-circle"></i> 关于</a></li>
+    <li><a href="http://123.60.174.101:48053/user.html" class="menu-link"><i class="fas fa-users"></i> 贡献者</a></li>
+  </ul>
+</aside>
+<div class="overlay fade-in" id="overlay"></div>
+
+<!-- 英雄区域 -->
+<section class="hero" id="home">
+  <canvas id="particleClock"></canvas>
+  <div class="hero-bg pulse"></div>
+  <div class="hero-content zoom-in">
+    <h1>Qcbba 方块航站</h1>
+    <p>社区论坛 · 分享与交流</p>
+  </div>
+</section>
+
+<!-- 论坛内容 -->
+<div class="section fade-in-up" id="forum">
+  <div class="forum-header slide-up">
+    <h2 class="section-title"><i class="fas fa-comments"></i> 社区论坛</h2>
+    <div class="forum-tabs">
+      <div class="forum-tab active">全部</div>
+      <div class="forum-tab">公告</div>
+      <div class="forum-tab">讨论</div>
+      <div class="forum-tab">分享</div>
+    </div>
+  </div>
+  
+  <!-- 帖子容器 -->
+  <div id="postsContainer">
+    <div class="card loading fade-in">
+      <i class="fas fa-spinner fa-spin"></i> 加载中...
+    </div>
+  </div>
+  
+  <!-- 未登录提示 -->
+  <div id="loginPrompt" class="login-prompt fade-in" style="display:none;">
+    <h3><i class="fas fa-lock"></i> 登录后参与讨论</h3>
+    <p>您需要登录后才能查看和发布帖子</p>
+    <a href="http://123.60.174.101:48053/login.html" class="btn btn-primary">
+      <i class="fas fa-sign-in-alt"></i> 立即登录
+    </a>
+  </div>
+</div>
+
+<!-- 页脚 -->
+<footer class="footer fade-in">
+  <p>Qcbba 自 2025 年早春运行 · 公益不商</p>
+</footer>
+
+<!-- 添加帖子按钮 -->
+<div class="add-post-btn zoom-in" id="addPostBtn" style="display:none;">
+  <i class="fas fa-plus"></i>
+</div>
+
+<!-- 发布帖子模态框 -->
+<div class="modal" id="postModal">
+  <div class="modal-header">
+    <div class="modal-title">发布新帖子</div>
+    <div class="modal-close" id="closePostModal"><i class="fas fa-times"></i></div>
+  </div>
+  <div class="modal-body">
+    <div class="post-type-selector">
+      <div class="post-type active" data-type="text">
+        <i class="fas fa-font fa-2x"></i>
+        <div>纯文本</div>
+      </div>
+      <div class="post-type" data-type="image">
+        <i class="fas fa-image fa-2x"></i>
+        <div>图文</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="postTitle">标题</label>
+      <input type="text" class="form-input" id="postTitle" placeholder="请输入帖子标题" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="postContent">内容</label>
+      <textarea class="form-textarea" id="postContent" placeholder="请输入帖子内容" required></textarea>
+    </div>
+    <div class="form-group" id="imageUploadSection" style="display:none;">
+      <label class="form-label">图片</label>
+      <div class="image-upload">
+        <div class="image-upload-btn" id="imageUploadBtn">
+          <i class="fas fa-upload"></i> 选择图片
+        </div>
+        <input type="file" id="imageInput" accept="image/*" style="display:none">
+        <span id="fileName" style="font-size:.9rem;opacity:.7"></span>
+      </div>
+      <img id="imagePreview" class="image-preview" alt="图片预览">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" id="cancelPost">取消</button>
+      <button class="btn btn-primary" id="submitPost">发布</button>
+    </div>
+  </div>
+</div>
+
+<!-- 评论模态框 -->
+<div class="modal" id="commentModal">
+  <div class="modal-header">
+    <div class="modal-title">评论</div>
+    <div class="modal-close" id="closeCommentModal"><i class="fas fa-times"></i></div>
+  </div>
+  <div class="modal-body">
+    <div id="commentPostInfo">
+      <div id="commentPostTitle"></div>
+      <div id="commentPostAuthor"></div>
+    </div>
+    
+    <div class="comments-section" id="commentsList">
+      <div class="no-comments">加载评论中...</div>
+    </div>
+    
+    <div class="comment-form">
+      <textarea class="comment-input" id="commentInput" placeholder="写下你的评论..." required></textarea>
+      <button class="comment-submit" id="submitComment">发表评论</button>
+    </div>
+  </div>
+</div>
+
+<!-- 日光模式和提示 -->
+<div class="sun-mode" id="sunMode" title="日光模式"><i class="fas fa-sun"></i></div>
+<div class="toast" id="toast"></div>
+
+<!-- JavaScript -->
+<script src="http://123.60.174.101:48053/user.js"></script>
+<script src="forum.js"></script>
+<script>
+// 粒子时钟
+const canvas = document.getElementById('particleClock');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let ani;
+
+function resize() {
+    const s = Math.min(innerWidth * .15, 120);
+    canvas.width = canvas.height = s;
+}
+
+function particle() {
+    return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.randomnav-container {
+        padding: 1rem;
+    }
+    .forum-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    .forum-tabs {
+        width: 100%;
+        overflow-x: auto;
+    }
+    .post-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .5rem;
+    }
+    .post-footer {
+        flex-wrap: wrap;
+        gap: .8rem;
+    }
+    .modal {
+        width: 95%;
+        margin: 1rem;
+    }
+    .add-post-btn {
+        bottom: 1rem;
+        left: 1rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+}
+/* 点赞后爱心变红（放在最底部，确保优先级） */
+.post-action.liked {
+    color: #ff4757 !important;
+    opacity: 1 !important;
+}
+</style>
+</head>
+<body data-theme="auto">
+<!-- 导航栏 -->
+<nav class="navbar fade-in-down">
+  <div class="nav-container">
+    <div id="userRom">
+      <a id="loginBtn" class="login-btn fade-in-right" href="http://123.60.174.101:48053/login.html">
+        <i class="fas fa-sign-in-alt"></i> 登录
+      </a>
+      <a id="userInfo" class="fade-in-right" href="http://123.60.174.101:48053/userhtml.php">
+        <i class="fas fa-user-circle"></i>
+        <span id="userName"></span>(#<span id="userId"></span>)
+      </a>
+      <button id="logoutBtn" class="fade-in-right" onclick="logout()" title="退出">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+    <div class="logo zoom-in">
+      <i class="fas fa-rocket"></i> 
+      <span>Qcbba</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:.8rem;">
+      <button class="theme-toggle fade-in-left" id="themeToggle">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="menu-toggle fade-in-left" id="menuToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- 侧边菜单 -->
+<aside class="side-menu slide-in-left" id="sideMenu">
+  <ul>
+    <li><a href="http://123.60.174.101:48053/forum.html" class="menu-link active"><i class="fas fa-comments"></i> 论坛</a></li>
+    <li><a href="index.html" class="menu-link"><i class="fas fa-home"></i> 首页</a></li>
+    <li><a href="index.html#server" class="menu-link"><i class="fas fa-server"></i> 服务器介绍</a></li>
+    <li><a href="http://123.60.174.101:48053/about.html" class="menu-link"><i class="fas fa-info-circle"></i> 关于</a></li>
+    <li><a href="http://123.60.174.101:48053/user.html" class="menu-link"><i class="fas fa-users"></i> 贡献者</a></li>
+  </ul>
+</aside>
+<div class="overlay fade-in" id="overlay"></div>
+
+<!-- 英雄区域 -->
+<section class="hero" id="home">
+  <canvas id="particleClock"></canvas>
+  <div class="hero-bg pulse"></div>
+  <div class="hero-content zoom-in">
+    <h1>Qcbba 方块航站</h1>
+    <p>社区论坛 · 分享与交流</p>
+  </div>
+</section>
+
+<!-- 论坛内容 -->
+<div class="section fade-in-up" id="forum">
+  <div class="forum-header slide-up">
+    <h2 class="section-title"><i class="fas fa-comments"></i> 社区论坛</h2>
+    <div class="forum-tabs">
+      <div class="forum-tab active">全部</div>
+      <div class="forum-tab">公告</div>
+      <div class="forum-tab">讨论</div>
+      <div class="forum-tab">分享</div>
+    </div>
+  </div>
+  
+  <!-- 帖子容器 -->
+  <div id="postsContainer">
+    <div class="card loading fade-in">
+      <i class="fas fa-spinner fa-spin"></i> 加载中...
+    </div>
+  </div>
+  
+  <!-- 未登录提示 -->
+  <div id="loginPrompt" class="login-prompt fade-in" style="display:none;">
+    <h3><i class="fas fa-lock"></i> 登录后参与讨论</h3>
+    <p>您需要登录后才能查看和发布帖子</p>
+    <a href="http://123.60.174.101:48053/login.html" class="btn btn-primary">
+      <i class="fas fa-sign-in-alt"></i> 立即登录
+    </a>
+  </div>
+</div>
+
+<!-- 页脚 -->
+<footer class="footer fade-in">
+  <p>Qcbba 自 2025 年早春运行 · 公益不商</p>
+</footer>
+
+<!-- 添加帖子按钮 -->
+<div class="add-post-btn zoom-in" id="addPostBtn" style="display:none;">
+  <i class="fas fa-plus"></i>
+</div>
+
+<!-- 发布帖子模态框 -->
+<div class="modal" id="postModal">
+  <div class="modal-header">
+    <div class="modal-title">发布新帖子</div>
+    <div class="modal-close" id="closePostModal"><i class="fas fa-times"></i></div>
+  </div>
+  <div class="modal-body">
+    <div class="post-type-selector">
+      <div class="post-type active" data-type="text">
+        <i class="fas fa-font fa-2x"></i>
+        <div>纯文本</div>
+      </div>
+      <div class="post-type" data-type="image">
+        <i class="fas fa-image fa-2x"></i>
+        <div>图文</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="postTitle">标题</label>
+      <input type="text" class="form-input" id="postTitle" placeholder="请输入帖子标题" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="postContent">内容</label>
+      <textarea class="form-textarea" id="postContent" placeholder="请输入帖子内容" required></textarea>
+    </div>
+    <div class="form-group" id="imageUploadSection" style="display:none;">
+      <label class="form-label">图片</label>
+      <div class="image-upload">
+        <div class="image-upload-btn" id="imageUploadBtn">
+          <i class="fas fa-upload"></i> 选择图片
+        </div>
+        <input type="file" id="imageInput" accept="image/*" style="display:none">
+        <span id="fileName" style="font-size:.9rem;opacity:.7"></span>
+      </div>
+      <img id="imagePreview" class="image-preview" alt="图片预览">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" id="cancelPost">取消</button>
+      <button class="btn btn-primary" id="submitPost">发布</button>
+    </div>
+  </div>
+</div>
+
+<!-- 评论模态框 -->
+<div class="modal" id="commentModal">
+  <div class="modal-header">
+    <div class="modal-title">评论</div>
+    <div class="modal-close" id="closeCommentModal"><i class="fas fa-times"></i></div>
+  </div>
+  <div class="modal-body">
+    <div id="commentPostInfo">
+      <div id="commentPostTitle"></div>
+      <div id="commentPostAuthor"></div>
+    </div>
+    
+    <div class="comments-section" id="commentsList">
+      <div class="no-comments">加载评论中...</div>
+    </div>
+    
+    <div class="comment-form">
+      <textarea class="comment-input" id="commentInput" placeholder="写下你的评论..." required></textarea>
+      <button class="comment-submit" id="submitComment">发表评论</button>
+    </div>
+  </div>
+</div>
+
+<!-- 日光模式和提示 -->
+<div class="sun-mode" id="sunMode" title="日光模式"><i class="fas fa-sun"></i></div>
+<div class="toast" id="toast"></div>
+
+<!-- JavaScript -->
+<script src="http://123.60.174.101:48053/user.js"></script>
+<script src="forum.js"></script>
+<script>
+// 粒子时钟
+const canvas = document.getElementById('particleClock');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let ani;
+
+function resize() {
+    const s = Math.min(innerWidth * .15, 120);
+    canvas.width = canvas.height = s;
+}
+
+function particle() {
+    return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - .5) * .5,
+        vy: (Math.random() - .5) * .5,
+        size: Math.random() * 2 + 1,
+        opacity: Math.random() * .5 + .5
+    };
+}
+
+function drawClock() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const now = new Date();
+    const h = now.getHours().toString().padStart(2, '0');
+    const m = now.getMinutes().toString().padStart(2, '0');
+    const s = now.getSeconds().toString().padStart(2, '0');
+    
+    particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0,198,255,${p.opacity})`;
+        ctx.fill();
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+    });
+    
+    ctx.font = `${canvas.width * .15}px Inter`;
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${h}:${m}`, canvas.width / 2, canvas.height / 2 - canvas.width * .1);
+    ctx.font = `${canvas.width * .1}px Inter`;
+    ctx.fillText(s, canvas.width / 2, canvas.height / 2 + canvas.width * .1);
+}
+
+function animate() {
+    drawClock();
+    ani = requestAnimationFrame(animate);
+}
+
+resize();
+particles = Array.from({length: 30}, particle);
+animate();
+addEventListener('resize', () => {
+    resize();
+    particles = Array.from({length: 30}, particle);
+});
+
+// 菜单 & 主题
+const menuToggle = document.getElementById('menuToggle');
+const sideMenu = document.getElementById('sideMenu');
+const overlay = document.getElementById('overlay');
+
+function toggleMenu(open) {
+    sideMenu.classList.toggle('active', open);
+    overlay.classList.toggle('show', open);
+}
+
+menuToggle.addEventListener('click', () => toggleMenu());
+overlay.addEventListener('click', () => toggleMenu(false));
+
+const body = document.body;
+
+function setTheme(t) {
+    body.setAttribute('data-theme', t);
+    localStorage.setItem('theme', t);
+    document.getElementById('themeToggle').innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+}
+
+document.getElementById('themeToggle').addEventListener('click', () => setTheme(body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+document.getElementById('sunMode').addEventListener('click', () => setTheme('light'));
+
+const saved = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+setTheme(saved);
+</script>
+</body>
+</html>
