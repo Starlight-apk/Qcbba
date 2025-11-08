@@ -1,0 +1,3 @@
+name=神
+uid=100001
+role=user
