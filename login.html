@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 - Qcbba</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg:#f5f7fa;--card:#fff;--text:#222;--primary:#00c6ff;--radius:12px;
+  --shadow:0 8px 24px rgba(0,0,0,.08);--transition:all .3s ease;
+}
+[data-theme="dark"]{
+  --bg:#0f1116;--card:#1a1d24;--text:#e6e6e6;--shadow:0 8px 24px rgba(0,0,0,.25)
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;min-height:100vh;transition:var(--transition)}
+.login-card{width:360px;background:var(--card);border-radius:var(--radius);padding:2.5rem 2rem;box-shadow:var(--shadow)}
+.login-card h2,.login-card h3{text-align:center;margin-bottom:1.8rem;font-weight:600}
+.input-group{display:flex;align-items:center;gap:.6rem;background:var(--bg);border:1px solid rgba(0,0,0,.1);border-radius:var(--radius);padding:.7rem 1rem;margin-bottom:1.2rem;transition:var(--transition)}
+.input-group:focus-within{border-color:var(--primary)}
+.input-group i{color:var(--primary)}
+.input-group input{flex:1;border:none;outline:none;background:transparent;color:var(--text)}
+.btn{width:100%;padding:.75rem;border-radius:var(--radius);background:var(--primary);color:#fff;font-weight:600;box-shadow:var(--shadow);transition:var(--transition)}
+.btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
+.tip{text-align:center;font-size:.85rem;margin-top:1.2rem;opacity:.8}
+.tip a{color:var(--primary);cursor:pointer}
+
+/* 弹窗背景遮罩 */
+dialog::backdrop{background:rgba(0,0,0,.45)}
+/* 简易 toast */
+.toast{position:fixed;left:50%;top:10%;transform:translateX(-50%);background:var(--card);color:var(--text);padding:.6rem 1.2rem;border-radius:var(--radius);box-shadow:var(--shadow);z-index:9999;font-size:.9rem;animation:pop .3s ease}
+@keyframes pop{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+</style>
+</head>
+<body data-theme="auto">
+
+<!-- 登录框 -->
+<form class="login-card" id="loginForm">
+  <h2>欢迎回来</h2>
+  <div class="input-group"><i class="fas fa-user"></i><input id="username" type="text" placeholder="用户名" required></div>
+  <div class="input-group"><i class="fas fa-key"></i><input id="key" type="text" placeholder="20 位动态密钥 / 密码" required></div>
+  <button type="submit" class="btn" id="submitBtn">登录</button>
+  <div class="tip">首次使用？<a href="#" id="regLink">点我注册</a>（会生成新密钥）</div>
+  <div class="tip"><a href="#" id="changePwdLink">修改密码</a></div>
+</form>
+
+<!-- 修改密码弹窗 -->
+<dialog id="changePwdDialog" class="login-card">
+  <form id="changePwdForm">
+    <h3>修改密码</h3>
+    <div class="input-group"><i class="fas fa-user"></i><input id="cpUser" type="text" placeholder="用户名" required></div>
+    <div class="input-group"><i class="fas fa-key"></i><input id="cpOld" type="text" placeholder="20 位动态密钥 / 旧密码" required></div>
+    <div class="input-group"><i class="fas fa-lock"></i><input id="cpNew" type="password" placeholder="新密码（≥8 位，含大小写+数字）" required></div>
+    <div class="input-group"><i class="fas fa-lock"></i><input id="cpNew2" type="password" placeholder="确认新密码" required></div>
+    <button type="submit" class="btn">确认修改</button>
+    <button type="button" class="btn" style="margin-top:.5rem;background:#888" onclick="changePwdDialog.close()">取消</button>
+  </form>
+</dialog>
+
+<script src="http://123.60.174.101:48053/login/login.js"></script>
+</body>
+</html>
