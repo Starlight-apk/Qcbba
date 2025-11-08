@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qcbba · 方块航站</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="http://123.60.174.101:48053/animations.css">
+<style>
+:root{--bg:#f5f7fa;--card:#fff;--text:#222;--primary:#00c6ff;--radius:14px;--shadow:0 8px 32px rgba(0,0,0,.08);--transition:all .3s ease}
+[data-theme="dark"]{--bg:#0f1116;--card:#1a1d24;--text:#e6e6e6;--shadow:0 8px 32px rgba(0,0,0,.25)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);transition:var(--transition)}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font:inherit;border:none;background:none}
+.navbar{position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);background:rgba(255,255,255,.7);border-bottom:1px solid rgba(0,0,0,.08)}
+.nav-container{max-width:1000px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem}
+.logo{display:flex;align-items:center;gap:.5rem;font-weight:700;color:var(--primary)}
+#userRom{display:flex;align-items:center;gap:.6rem}
+#loginBtn{display:inline-flex}
+#userInfo{display:none;align-items:center;gap:.4rem;color:var(--primary);font-weight:600}
+#logoutBtn{display:none;margin-left:.4rem;padding:.4rem .6rem;border-radius:var(--radius);background:var(--primary);color:#fff;border:none}
+.menu-toggle{font-size:1.4rem;color:var(--text)}
+.theme-toggle{font-size:1.2rem;color:var(--text)}
+.side-menu{position:fixed;left:0;top:0;height:100vh;width:220px;background:var(--card);box-shadow:var(--shadow);transform:translateX(-100%);transition:transform .3s;z-index:200}
+.side-menu.active{transform:translateX(0)}
+.side-menu ul{list-style:none;padding:3rem 1.5rem}
+.side-menu li{margin-bottom:1.2rem}
+.side-menu a{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;transition:color .2s}
+.side-menu a.active{color:var(--primary);font-weight:600}
+.overlay{position:fixed;inset:0;background:#0003;opacity:0;visibility:hidden;transition:opacity .3s;z-index:150}
+.overlay.show{opacity:1;visibility:visible}
+.hero{position:relative;height:60vh;display:grid;place-items:center;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,var(--primary),#0072ff);opacity:.15;filter:blur(40px)}
+.hero-content{text-align:center;z-index:2}
+.hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800}
+.hero p{font-size:1.1rem;opacity:.8;margin-top:.5rem}
+.section{max-width:1000px;margin:4rem auto;padding:0 1.2rem}
+.section-title{font-size:1.5rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:.5rem}
+.grid{display:grid;gap:1.2rem;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.card{background:var(--card);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow);transition:var(--transition)}
+.card:hover{transform:translateY(-4px)}
+.footer{margin-top:6rem;padding:2.5rem 1.2rem;text-align:center;font-size:.9rem;opacity:.6}
+#particleClock{position:absolute;top:1rem;right:1rem;width:120px;height:120px;z-index:10}
+.sun-mode{position:fixed;bottom:2rem;right:2rem;width:50px;height:50px;border-radius:50%;background:#ffd700;box-shadow:0 0 20px #ffd700;cursor:pointer}
+.sun-mode:hover{transform:scale(1.1)}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--card);padding:.8rem 1.4rem;border-radius:var(--radius);box-shadow:var(--shadow);z-index:250;display:none}
+
+/* 服务器状态模块样式 */
+.server-status{margin-bottom:2rem}
+.status-card{background:var(--card);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow);transition:var(--transition)}
+.status-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.status-title{font-size:1.2rem;font-weight:600;display:flex;align-items:center;gap:.5rem}
+.status-indicator{display:flex;align-items:center;gap:.5rem;padding:.4rem .8rem;border-radius:var(--radius);font-size:.9rem;font-weight:600}
+.status-online{background:rgba(76,175,80,.1);color:#4CAF50}
+.status-offline{background:rgba(244,67,54,.1);color:#f44336}
+.status-loading{background:rgba(255,193,7,.1);color:#ffc107}
+.status-dot{width:8px;height:8px;border-radius:50%}
+.status-online .status-dot{background:#4CAF50;box-shadow:0 0 8px #4CAF50}
+.status-offline .status-dot{background:#f44336;box-shadow:0 0 8px #f44336}
+.status-loading .status-dot{background:#ffc107;box-shadow:0 0 8px #ffc107}
+.status-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem}
+.status-item{display:flex;flex-direction:column;gap:.3rem}
+.status-label{font-size:.9rem;opacity:.7}
+.status-value{font-size:1.1rem;font-weight:600}
+.status-players{display:flex;align-items:center;gap:.5rem}
+.player-avatars{display:flex}
+.player-avatar{width:24px;height:24px;border-radius:50%;border:2px solid var(--card);margin-left:-8px;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#fff}
+.player-avatar:first-child{margin-left:0}
+.status-refresh{background:var(--primary);color:#fff;padding:.5rem;border-radius:var(--radius);cursor:pointer;transition:var(--transition)}
+.status-refresh:hover{transform:scale(1.05)}
+
+/* 下载模组相关样式 */
+.download-section{max-width:1000px;margin:4rem auto;padding:0 1.2rem;text-align:center}
+.download-btn{background:var(--primary);color:#fff;padding:1rem 2rem;border-radius:var(--radius);font-weight:600;font-size:1.1rem;transition:var(--transition);box-shadow:var(--shadow);display:inline-flex;align-items:center;gap:.5rem}
+.download-btn:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,198,255,.3)}
+.embedded-frame{width:100%;height:600px;border:none;border-radius:var(--radius);box-shadow:var(--shadow);margin-top:2rem;display:none}
+.frame-controls{display:none;justify-content:center;gap:1rem;margin-top:1rem;align-items:center}
+.control-btn{background:var(--card);color:var(--text);padding:0.5rem 1rem;border-radius:var(--radius);border:1px solid rgba(0,0,0,.1);transition:var(--transition)}
+.control-btn:hover{background:var(--primary);color:#fff}
+.loading{display:none;text-align:center;padding:2rem;color:var(--text);opacity:.7}
+
+/* 白名单相关样式 */
+.verified-badge{background:linear-gradient(135deg,#4CAF50,#45a049);color:#fff;padding:1rem 2rem;border-radius:var(--radius);font-weight:600;display:inline-flex;align-items:center;gap:.5rem;box-shadow:var(--shadow)}
+.input-group{display:flex;align-items:center;gap:.6rem;background:var(--bg);border:1px solid rgba(0,0,0,.1);border-radius:var(--radius);padding:.7rem 1rem;margin-bottom:1.2rem;transition:var(--transition)}
+.input-group:focus-within{border-color:var(--primary)}
+.input-group i{color:var(--primary)}
+.input-group input{flex:1;border:none;outline:none;background:transparent;color:var(--text)}
+
+/* ===== 新增：Q弹全局弹窗 ===== */
+.popup-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .35s ease,visibility .35s ease;
+}
+.popup-overlay.show{
+  opacity:1;
+  visibility:visible;
+}
+.popup-box{
+  position:relative;
+  width:90%;
+  max-width:600px;
+  height:70vh;
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:0 12px 40px rgba(0,0,0,.25);
+  overflow:hidden;
+  transform:scale(.65);
+  transition:transform .45s cubic-bezier(.68,-.55,.27,1.55);
+}
+.popup-overlay.show .popup-box{
+  transform:scale(1);
+}
+/* 关闭时Q弹收回 */
+.popup-box.hide{
+  transform:scale(.65);
+  opacity:0;
+  transition:transform .35s cubic-bezier(.55,.06,.68,.19),opacity .25s ease;
+}
+.popup-close{
+  position:absolute;
+  top:.8rem;
+  right:.8rem;
+  width:2rem;
+  height:2rem;
+  border:none;
+  background:var(--primary);
+  color:#fff;
+  border-radius:50%;
+  font-size:1.2rem;
+  cursor:pointer;
+  transition:transform .2s ease;
+}
+.popup-close:hover{
+  transform:rotate(90deg) scale(1.1);
+}
+#popupFrame{
+  width:100%;
+  height:100%;
+  display:block;
+}
+</style>
+</head>
+<body data-theme="auto" class="page-load">
+
+<!-- ===== 新增：全局弹窗结构 ===== -->
+<div id="globalPopup" class="popup-overlay">
+  <div class="popup-box">
+    <iframe id="popupFrame" src="about:blank"></iframe>
+    <button class="popup-close" onclick="closePopup()">&times;</button>
+  </div>
+</div>
+
+<nav class="navbar navbar-slide">
+  <div class="nav-container">
+    <div id="userRom" style="display:flex;align-items:center;gap:.6rem;">
+      <a id="loginBtn" class="login-btn btn-click" href="http://123.60.174.101:48053/login.html"><i class="fas fa-sign-in-alt"></i> 登录</a>
+      <a id="userInfo" href="http://123.60.174.101:48053/userhtml.php" style="display:none;align-items:center;gap:.4rem;color:var(--primary);font-weight:600;"><i class="fas fa-user-circle"></i><span id="userName"></span>(#<span id="userId"></span>)</a>
+      <button id="logoutBtn" onclick="logout()" title="退出" class="btn-click" style="display:none;margin-left:.4rem;padding:.4rem .6rem;border-radius:var(--radius);background:var(--primary);color:#fff;border:none;"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+    <div class="logo zoom-in delay-100"><i class="fas fa-rocket"></i> <span>Qcbba</span></div>
+    <div style="display:flex;align-items:center;gap:.8rem;">
+      <button class="theme-toggle btn-click" id="themeToggle"><i class="fas fa-moon"></i></button>
+      <button class="menu-toggle btn-click" id="menuToggle"><i class="fas fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+<aside class="side-menu" id="sideMenu">
+  <ul>
+    <li><a href="http://123.60.174.101:48053/forum.html" target="_blank" class="menu-link fade-in-left delay-100"><i class="fas fa-comments"></i> 论坛</a></li>
+    <li><a href="#home" class="menu-link active fade-in-left delay-200"><i class="fas fa-home"></i> 首页</a></li>
+    <li><a href="#server" class="menu-link fade-in-left delay-300"><i class="fas fa-server"></i> 服务器介绍</a></li>
+    <li><a href="http://123.60.174.101:48053/about.html" class="menu-link fade-in-left delay-400"><i class="fas fa-info-circle"></i> 关于</a></li>
+    <li><a href="http://123.60.174.101:48053/user.html" class="menu-link fade-in-left delay-500"><i class="fas fa-users"></i> 贡献者</a></li>
+  </ul>
+</aside>
+<div class="overlay" id="overlay"></div>
+
+<section class="hero" id="home">
+  <canvas id="particleClock"></canvas>
+  <div class="hero-bg hero-pulse"></div>
+  <div class="hero-content hero-zoom">
+    <h1>Qcbba 方块航站</h1>
+    <p>低延迟 · 长续存 · 纯公益</p>
+  </div>
+</section>
+
+<div class="section" id="server">
+  <div class="server-status fade-in-up delay-200">
+    <h2 class="section-title"><i class="fas fa-server"></i> 服务器状态</h2>
+    <div class="status-card card-hover">
+      <div class="status-header">
+        <div class="status-title">
+          <i class="fas fa-globe"></i>
+          <span>主服务器状态</span>
+        </div>
+        <div class="status-indicator status-loading" id="serverStatus">
+          <div class="status-dot"></div>
+          <span>检测中...</span>
+        </div>
+      </div>
+      <div class="status-info">
+        <div class="status-item">
+          <span class="status-label">服务器地址</span>
+          <span class="status-value">im.rainplay.cn:12159</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">在线玩家</span>
+          <div class="status-players">
+            <span class="status-value" id="onlinePlayers">0</span>
+            <span class="status-label">/</span>
+            <span class="status-value" id="maxPlayers">0</span>
+            <div class="player-avatars" id="playerAvatars"></div>
+          </div>
+        </div>
+        <div class="status-item">
+          <span class="status-label">版本</span>
+          <span class="status-value" id="serverVersion">1.20.1</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">延迟</span>
+          <span class="status-value" id="serverPing">-</span>
+        </div>
+      </div>
+      <div style="margin-top:1rem;text-align:right">
+        <button class="status-refresh btn-click" onclick="checkServerStatus()" title="刷新状态">
+          <i class="fas fa-redo"></i> 刷新
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" id="serverGrid"></div>
+  <h2 class="section-title fade-in-up delay-300"><i class="fas fa-rocket"></i> 快速登机</h2>
+  <div class="card card-hover fade-in-up delay-400">
+    <p>① 启动 <strong>Minecraft Java 版 1.20.1</strong></p>
+    <p>② 添加服务器地址 <code>im.rainplay.cn:12159</code></p>
+    <p>③ 点击加入，即可启程</p>
+    <div style="margin-top:1rem;text-align:right">
+      <button class="btn-small btn-click" onclick="copyAddress()"><i class="fas fa-copy"></i> 复制地址</button>
+    </div>
+  </div>
+</div>
+
+<div id="romContainer"></div>
+
+<div class="download-section" id="downloadSection">
+  <h2 class="section-title fade-in-up delay-500"><i class="fas fa-download"></i> 下载模组</h2>
+  <button class="download-btn btn-click fade-in-up delay-600" id="downloadBtn" onclick="showDownloadFrame()">
+    <i class="fas fa-download"></i> 获取模组资源包
+  </button>
+  
+  <div class="loading" id="loadingIndicator">
+    <div class="loading-spinner"></div>
+    <p>正在加载模组页面...</p>
+  </div>
+  
+  <iframe class="embedded-frame" id="downloadFrame" src="about:blank"></iframe>
+  
+  <div class="frame-controls" id="frameControls">
+    <button class="control-btn btn-click" onclick="reloadFrame()"><i class="fas fa-redo"></i> 刷新页面</button>
+    <button class="control-btn btn-click" onclick="openInNewTab()"><i class="fas fa-external-link-alt"></i> 新窗口打开</button>
+    <button class="control-btn btn-click" onclick="hideFrame()"><i class="fas fa-times"></i> 关闭</button>
+  </div>
+</div>
+
+<footer class="footer fade-in-up delay-700">
+  <p>Qcbba 自 2025 年早春运行 · 公益不商</p>
+</footer>
+
+<div class="sun-mode sun-rotate btn-click" id="sunMode" title="日光模式"><i class="fas fa-sun"></i></div>
+<div class="toast" id="toast"></div>
+
+<script src="http://123.60.174.101:48053/index.js"></script>
+<script src="http://123.60.174.101:48053/user.js"></script>
+<script>
+/* 粒子时钟 */
+const canvas=document.getElementById('particleClock'),ctx=canvas.getContext('2d');let particles=[],ani;function resize(){const s=Math.min(innerWidth*.15,120);canvas.width=canvas.height=s;}function particle(){return{x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,size:Math.random()*2+1,opacity:Math.random()*.5+.5};}function drawClock(){ctx.clearRect(0,0,canvas.width,canvas.height);const now=new Date(),h=now.getHours().toString().padStart(2,'0'),m=now.getMinutes().toString().padStart(2,'0'),s=now.getSeconds().toString().padStart(2,'0');particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fillStyle=`rgba(0,198,255,${p.opacity})`;ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;});ctx.font=`${canvas.width*.15}px Inter`;ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--primary');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(`${h}:${m}`,canvas.width/2,canvas.height/2-canvas.width*.1);ctx.font=`${canvas.width*.1}px Inter`;ctx.fillText(s,canvas.width/2,canvas.height/2+canvas.width*.1);}function animate(){drawClock();ani=requestAnimationFrame(animate);}resize();particles=Array.from({length:30},particle);animate();addEventListener('resize',()=>{resize();particles=Array.from({length:30},particle);});
+
+/* 菜单 & 主题 & 复制 */
+const menuToggle=document.getElementById('menuToggle'),sideMenu=document.getElementById('sideMenu'),overlay=document.getElementById('overlay');function toggleMenu(open){sideMenu.classList.toggle('active',open);overlay.classList.toggle('show',open);}menuToggle.addEventListener('click',()=>toggleMenu());overlay.addEventListener('click',()=>toggleMenu(false));const body=document.body;function setTheme(t){body.setAttribute('data-theme',t);localStorage.setItem('theme',t);document.getElementById('themeToggle').innerHTML=t==='dark'?'<i class="fas fa-sun"></i>':'<i class="fas fa-moon"></i>';}document.getElementById('themeToggle').addEventListener('click',()=>setTheme(body.getAttribute('data-theme')==='dark'?'light':'dark'));document.getElementById('sunMode').addEventListener('click',()=>setTheme('light'));const saved=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');setTheme(saved);function copyAddress(){navigator.clipboard.writeText('im.rainplay.cn:12159').then(()=>{const t=document.createElement('div');t.className='toast';t.textContent='地址已复制';document.body.appendChild(t);setTimeout(()=>t.remove(),2000);});}
+
+/* 下载模组功能 */
+function showDownloadFrame() {
+  const downloadBtn = document.getElementById('downloadBtn');
+  const downloadFrame = document.getElementById('downloadFrame');
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  const frameControls = document.getElementById('frameControls');
+  
+  downloadBtn.style.display = 'none';
+  loadingIndicator.style.display = 'block';
+  
+  const modUrl = 'http://117.72.109.119:61475/@s/OAf0bNha';
+  downloadFrame.src = modUrl;
+  
+  downloadFrame.onload = function() {
+    loadingIndicator.style.display = 'none';
+    downloadFrame.style.display = 'block';
+    frameControls.style.display = 'flex';
+    showToast('模组页面加载完成');
+  };
+  
+  downloadFrame.onerror = function() {
+    loadingIndicator.style.display = 'none';
+    showToast('页面加载失败，请检查网络连接');
+  };
+}
+
+function reloadFrame() {
+  const downloadFrame = document.getElementById('downloadFrame');
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  
+  loadingIndicator.style.display = 'block';
+  downloadFrame.style.display = 'none';
+  
+  downloadFrame.src = downloadFrame.src;
+}
+
+function openInNewTab() {
+  window.open('http://117.72.109.119:61475/@s/OAf0bNha', '_blank');
+  showToast('在新窗口打开模组页面');
+}
+
+function hideFrame() {
+  const downloadBtn = document.getElementById('downloadBtn');
+  const downloadFrame = document.getElementById('downloadFrame');
+  const frameControls = document.getElementById('frameControls');
+  
+  downloadBtn.style.display = 'inline-flex';
+  downloadFrame.style.display = 'none';
+  frameControls.style.display = 'none';
+  downloadFrame.src = 'about:blank';
+}
+
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+/* ===== 新增：Q弹弹窗控制 ===== */
+function openPopup(){
+  const overlay=document.getElementById('globalPopup');
+  overlay.classList.add('show');
+}
+function closePopup(){
+  const overlay=document.getElementById('globalPopup');
+  const box=overlay.querySelector('.popup-box');
+  box.classList.add('hide');
+  setTimeout(()=>{
+    overlay.classList.remove('show');
+    box.classList.remove('hide');
+  },350);
+}
+/* 页面加载后自动弹出公告 */
+window.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('popupFrame').src='http://123.60.174.101:48053/公告.php';
+  setTimeout(openPopup,600);   /* 可调整延迟 */
+});
+</script>
+
+<script src="http://123.60.174.101:48053/白名单/whitelist.js"></script>
+<script src="http://123.60.174.101:48053/index.js"></script>
+</body>
+</html>
