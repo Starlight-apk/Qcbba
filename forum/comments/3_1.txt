@@ -1,0 +1,7 @@
+post_id = 3
+comment_id = 1
+author = qysn
+uid = 10086
+time = 2025-11-01 12:04:13
+---content---
+必须分享!
